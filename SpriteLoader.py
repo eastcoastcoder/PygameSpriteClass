@@ -108,7 +108,7 @@ class SpriteLoader(pygame.sprite.Sprite):
         pass
     
     def rotate(self, angle):
-        self.image = pygame.transform.rotate(self.image, angle)
+        self.stopFrame = pygame.transform.rotate(self.stopFrame, angle)
     
     def scale(self):
         #Should be able to scale up and down
@@ -144,11 +144,15 @@ def main():
                 if event.key == pygame.K_SPACE:
                     spriteObj.animate()
                 if event.key == pygame.K_UP:
-                    print("rotate 90deg Left")
+                    pass
                 if event.key == pygame.K_DOWN:
+                    pass
+                if event.key == pygame.K_LEFT:
+                    spriteObj.rotate(90)
+                    print("rotate 90deg Left")
+                if event.key == pygame.K_RIGHT:
+                    spriteObj.rotate(-90)
                     print("rotate 90deg Right")
-                if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
-                    print("flip")
         
         screen.blit(spriteObj.stopFrame,(100,100))
         msElapsed = clock.tick(30) #SYNC RATE 30 FPS
