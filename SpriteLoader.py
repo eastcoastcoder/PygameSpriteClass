@@ -33,6 +33,14 @@ Get Width and Height (remember scaling)
 import pygame, sys, os
 from glob import *
  
+pygame.init()
+clock = pygame.time.Clock()
+
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 800
+
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT)) 
+ 
 class SpriteLoader(pygame.sprite.Sprite):
     
     def __init__(self):
@@ -45,28 +53,34 @@ class SpriteLoader(pygame.sprite.Sprite):
     
     def loadMultiFile(self, dirName):
         """Load from multiple graphic files"""
-        
-        dirScan = glob(dirName)
-        fileCount = 0
-        print(fileCount, len(dirScan))
-        while(fileCount < len(dirScan)):
-            print (fileCount)
-            fileCount += 1
-        '''
-        while(fileCount < len(dirScan)):
-            
-        self.stopFrame = pygame.image.load("cowImages/stopped0002.bmp")
+        #First frame will always be stopFrame
+        self.stopFrame = pygame.image.load(dirName + "00.bmp")
         self.stopFrame = self.stopFrame.convert()
+        #Put in Draw
         transColor = self.stopFrame.get_at((1, 1))
         self.stopFrame.set_colorkey(transColor)
         
+        dirScan = glob(dirName + "*.*")
+        
+        for i in range(1,len(dirScan)):
+            animFrame = dirScan[i]
+            curFrame = pygame.image.load(animFrame)
+            curFrame = curFrame.convert()
+            #Put in Draw
+            transColor = curFrame.get_at((1, 1))
+            curFrame.set_colorkey(transColor)
+            self.animation.append(curFrame)
+            print(dirScan[i])
+        
+        '''
+        
         for i in range(10):
-            imgName = "cowImages/muuuh e000%d.bmp" % i
-            tmpImage = pygame.image.load(imgName)
-            tmpImage = tmpImage.convert()
-            transColor = tmpImage.get_at((1, 1))
-            tmpImage.set_colorkey(transColor)
-            self.animation.append(tmpImage)
+            animFrame = "cowImages/muuuh e000%d.bmp" % i
+            curFrame = pygame.image.load(animFrame)
+            curFrame = curFrame.convert()
+            transColor = curFrame.get_at((1, 1))
+            curFrame.set_colorkey(transColor)
+            self.animation.append(curFrame)
         '''
         
     def loadSpriteSheet(self, fileName):
@@ -107,9 +121,38 @@ class SpriteLoader(pygame.sprite.Sprite):
         return self.height*self.scale
 
 def main():
+    
     spriteObj = SpriteLoader()
-    spriteObj.loadMultiFile('assets/cow/*.*')
-    print ("Executed")
+    spriteObj.loadMultiFile('assets/cow/')
+    
+    
+    background = pygame.Surface(screen.get_size())
+    background = background.convert()
+    background.fill((250, 250, 250))
+    
+    background.blit(background, (0, 0))
+    
+    while(True):
+        screen.blit(background, (0, 0))
+        #screen.fill(Color.black)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                sys.exit()
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                sys.exit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    spriteObj.animate()
+                if event.key == pygame.K_UP:
+                    print("rotate 90deg Left")
+                if event.key == pygame.K_DOWN:
+                    print("rotate 90deg Right")
+                if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
+                    print("flip")
+        
+        screen.blit(spriteObj.stopFrame,(100,100))
+        msElapsed = clock.tick(30) #SYNC RATE 30 FPS
+        pygame.display.update() #SYNC 
     
 if __name__ == '__main__':
     main()
