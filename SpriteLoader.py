@@ -20,7 +20,7 @@ requires it either through inheritance or through inclusion of a sprite object.
  - helper functions as needed
 Rotate sprite
 Scale sprite
- - Should be able to scale up and down
+ - Should be able to resize up and down
 Get Width and Height (remember scaling)
 
 #Advanced (A level specifications):
@@ -36,10 +36,10 @@ from glob import *
 pygame.init()
 clock = pygame.time.Clock()
 
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 800
+SCREEN_WD_HT = 800
+SCALING_FACTOR = 2
 
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT)) 
+screen = pygame.display.set_mode((SCREEN_WD_HT, SCREEN_WD_HT)) 
  
 class SpriteLoader(pygame.sprite.Sprite):
     
@@ -48,7 +48,7 @@ class SpriteLoader(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.width = 0
         self.height = 0
-        self.scale = 1
+        self.resize = 1
         self.animation = []
     
     def loadMultiFile(self, dirName):
@@ -71,17 +71,6 @@ class SpriteLoader(pygame.sprite.Sprite):
             curFrame.set_colorkey(transColor)
             self.animation.append(curFrame)
             print(dirScan[i])
-        
-        '''
-        
-        for i in range(10):
-            animFrame = "cowImages/muuuh e000%d.bmp" % i
-            curFrame = pygame.image.load(animFrame)
-            curFrame = curFrame.convert()
-            transColor = curFrame.get_at((1, 1))
-            curFrame.set_colorkey(transColor)
-            self.animation.append(curFrame)
-        '''
         
     def loadSpriteSheet(self, fileName):
         """Load from sprite sheets"""
@@ -110,15 +99,22 @@ class SpriteLoader(pygame.sprite.Sprite):
     def rotate(self, angle):
         self.stopFrame = pygame.transform.rotate(self.stopFrame, angle)
     
-    def scale(self):
-        #Should be able to scale up and down
-        pass
+    def resizeSprite(self, objective):
+        
+        if(objective == 'scale'):
+            wid = self.stopFrame.get_width()*SCALING_FACTOR
+            ht = self.stopFrame.get_width()*SCALING_FACTOR
+        elif(objective == 'shrink'):
+            wid = self.stopFrame.get_width()/SCALING_FACTOR
+            ht = self.stopFrame.get_width()/SCALING_FACTOR
+        
+        self.stopFrame = pygame.transform.scale(self.stopFrame, (wid,ht))
     
     def getWidth(self):
-        return self.width*self.scale
+        return self.width*self.resize
     
     def getHeight(self):
-        return self.height*self.scale
+        return self.height*self.resize
 
 def main():
     
@@ -144,9 +140,9 @@ def main():
                 if event.key == pygame.K_SPACE:
                     spriteObj.animate()
                 if event.key == pygame.K_UP:
-                    pass
+                    spriteObj.resizeSprite('scale')
                 if event.key == pygame.K_DOWN:
-                    pass
+                    spriteObj.resizeSprite('shrink')
                 if event.key == pygame.K_LEFT:
                     spriteObj.rotate(90)
                     print("rotate 90deg Left")
@@ -155,8 +151,8 @@ def main():
                     print("rotate 90deg Right")
         
         screen.blit(spriteObj.stopFrame,(100,100))
-        msElapsed = clock.tick(30) #SYNC RATE 30 FPS
-        pygame.display.update() #SYNC 
+        msElapsed = clock.tick(30)
+        pygame.display.update() 
     
 if __name__ == '__main__':
     main()
