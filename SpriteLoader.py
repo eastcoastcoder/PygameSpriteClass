@@ -49,7 +49,9 @@ class SpriteLoader(pygame.sprite.Sprite):
         self.width = 0
         self.height = 0
         self.resize = 1
+        self.drawFrame = 0
         self.animation = []
+        self.curFrame = 0
     
     def loadMultiFile(self, dirName):
         """Load from multiple graphic files"""
@@ -64,13 +66,14 @@ class SpriteLoader(pygame.sprite.Sprite):
         
         for i in range(1,len(dirScan)):
             animFrame = dirScan[i]
-            curFrame = pygame.image.load(animFrame)
-            curFrame = curFrame.convert()
+            tempFrame = pygame.image.load(animFrame)
+            tempFrame = tempFrame.convert()
             #Put in Draw
-            transColor = curFrame.get_at((1, 1))
-            curFrame.set_colorkey(transColor)
-            self.animation.append(curFrame)
+            transColor = tempFrame.get_at((1, 1))
+            tempFrame.set_colorkey(transColor)
+            self.animation.append(tempFrame)
             print(dirScan[i])
+        
         
     def loadSpriteSheet(self, fileName):
         """Load from sprite sheets"""
@@ -86,6 +89,10 @@ class SpriteLoader(pygame.sprite.Sprite):
         #pygame.draw
     
     def animate(self):
+        self.drawFrame += 1
+        if self.drawFrame >= len(self.animation):
+            self.drawFrame = 0
+        self.stopFrame = self.animation[self.drawFrame]
         '''
         - play/pause animation
         - change animation delay
@@ -94,13 +101,14 @@ class SpriteLoader(pygame.sprite.Sprite):
         - return which animation frame the animation is currently in
         - helper functions as needed
         '''
-        pass
+        
     
     def rotate(self, angle):
         self.stopFrame = pygame.transform.rotate(self.stopFrame, angle)
     
+    #TODO: Make Dynamic
     def resizeSprite(self, objective):
-        
+        """Resizes Sprite"""
         if(objective == 'scale'):
             wid = self.stopFrame.get_width()*SCALING_FACTOR
             ht = self.stopFrame.get_width()*SCALING_FACTOR
@@ -151,6 +159,7 @@ def main():
                     print("rotate 90deg Right")
         
         screen.blit(spriteObj.stopFrame,(100,100))
+        #spriteObj.animate
         msElapsed = clock.tick(30)
         pygame.display.update() 
     
