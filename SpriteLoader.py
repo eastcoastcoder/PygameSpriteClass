@@ -1,31 +1,23 @@
 '''
 #PygameSpriteClass
-The goal of this assignment is to create a functioning generic sprite class.  
+The goal of this assignment is to create a functioning generic curFrame class.  
 When I say generic, I mean that the functionality of the class can be provided to any game entity that 
-requires it either through inheritance or through inclusion of a sprite object.
+requires it either through inheritance or through inclusion of a curFrame object.
 
 #Basic (B level specifications):
 
-**Draw command**
-
 **Animation commands**
- 
  - play/pause animation
  - change animation delay
  - set animation range through a start drawFrame and end drawFrame
  - specify a current animation drawFrame
  - return which animation drawFrame the animation is currently in
- - helper functions as needed
-Rotate sprite
-Scale sprite
- - Should be able to resize up and down
-Get Width and Height (remember scaling)
 
 #Advanced (A level specifications):
 
  - Fix the surface scaling problem with the Rotate command
  - Allow the user to create specific animations that are easily loaded 
- - Manipulate alpha to make sprite partially transparent
+ - Manipulate alpha to make curFrame partially transparent
  - Debug mode that shows borders and animation frames
 '''
 import pygame, sys, os
@@ -42,7 +34,6 @@ class SpriteLoader(object):
     
     def __init__(self, name, mode):
         """Constructor"""
-        #pygame.sprite.Sprite.__init__(self)
         self.animation = []
         self.STOP = 0
         self.PLAY = 1
@@ -53,18 +44,17 @@ class SpriteLoader(object):
         elif(mode == 'Sheet'):
             self.loadSpriteSheet(name)
 
-        self.sprite = self.stopFrame
+        self.curFrame = self.stopFrame
         self.drawFrame = 0
         self.state = self.STOP
         self.pause = 0
         
-        self.width = self.sprite.get_width()       
-        self.height = self.sprite.get_height() 
+        self.width = self.curFrame.get_width()       
+        self.height = self.curFrame.get_height() 
                    
     def loadMultiFile(self, dirName):
         """Load from multiple graphic files"""
-        self.stopFrame = pygame.image.load(dirName + "00.bmp")
-        self.stopFrame = self.stopFrame.convert()
+        self.stopFrame = pygame.image.load(dirName + "00.bmp").convert()
         
         dirScan = glob(dirName + "*.*")
         for i in range(1,len(dirScan)):
@@ -74,7 +64,7 @@ class SpriteLoader(object):
             self.animation.append(tempFrame)
             
     def loadSpriteSheet(self, fileName, start, size, columns, rows=1):
-        """Load from sprite sheets"""
+        """Load from curFrame sheets"""
         #size     ()
         #location ()
         
@@ -92,7 +82,7 @@ class SpriteLoader(object):
         self.__setTransColor(transColor)
         
         if self.state == self.STOP:
-            self.sprite = self.stopFrame
+            self.curFrame = self.stopFrame
         else:
             self.pause += 1
             if self.pause > delay:
@@ -109,11 +99,11 @@ class SpriteLoader(object):
                     if self.drawFrame >= len(self.animation):
                         self.drawFrame = 0
                         self.state = self.STOP
-                        self.sprite = self.stopFrame
+                        self.curFrame = self.stopFrame
                     
                     #Plays Animation
                     else:
-                        self.sprite = self.animation[self.drawFrame]
+                        self.curFrame = self.animation[self.drawFrame]
                         
             
         '''
@@ -159,7 +149,9 @@ class SpriteLoader(object):
 def main():
     
     spriteObj = SpriteLoader('assets/cow/', 'Dir')
-    #spriteSheetObj = SpriteLoader('assets/cow/', 'Sheet', (111, 79, 51, 255))
+    #spriteSheetObj = SpriteLoader('assets/cow/', 'Sheet')
+    #spriteSheetObj.loadSpriteSheet(start, size, columns, rows=1)
+    #spriteSheetObj = SpriteLoader('assets/cow/', 'Sheet')
     
     background = pygame.Surface(screen.get_size())
     background = background.convert()
@@ -201,7 +193,7 @@ def main():
                     print "Rotate Right"
                     
         spriteObj.draw(3, (111, 79, 51, 255))
-        screen.blit(spriteObj.sprite, (100,100))
+        screen.blit(spriteObj.curFrame, (100,100))
         msElapsed = clock.tick(30)
         pygame.display.update() 
     
