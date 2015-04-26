@@ -51,11 +51,10 @@ class SpriteLoader(object):
             self.animation.append(tempFrame)
             
         self.curFrame = self.stopFrame
-        
         self.width = self.curFrame.get_width()
         self.height = self.curFrame.get_height() 
            
-    def loadSpriteSheet(self, fileName, start, size, columns, rows=1):
+    def loadSpriteSheet(self, fileName, start, size, columns, rows):
         """Load from curFrame sheets"""
         spriteSheet = pygame.image.load(fileName).convert()
         
@@ -69,7 +68,6 @@ class SpriteLoader(object):
                     self.animation.append(spriteSheet.subsurface(pygame.Rect(location,size)))
         
         self.curFrame = self.stopFrame
-        
         self.width = self.curFrame.get_width()
         self.height = self.curFrame.get_height()         
         
@@ -142,8 +140,8 @@ class SpriteLoader(object):
 def main():
     
     spriteObj = SpriteLoader()
-    spriteObj.loadMultiFile('assets/cow/')
-    #spriteObj.loadSpriteSheet("assets/COWABUNGA.bmp", [0,0], [96,96], 1, 1)
+    #spriteObj.loadMultiFile('assets/cow/')
+    spriteObj.loadSpriteSheet("assets/COWABUNGA.bmp", [0,0], [96,96], 12, 1)
     
     background = pygame.Surface(screen.get_size())
     background = background.convert()
