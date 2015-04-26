@@ -73,12 +73,21 @@ class SpriteLoader(object):
             tempFrame = tempFrame.convert()
             self.animation.append(tempFrame)
             
-    def loadSpriteSheet(self, fileName):
+    def loadSpriteSheet(self, fileName, start, size, columns, rows=1):
         """Load from sprite sheets"""
-        self.fileName = fileName
-        self.image = pygame.image.load(fileName).convert()
-        pass
-    
+        #size     ()
+        #location ()
+        
+        spriteSheet = pygame.image.load(fileName).convert()
+        
+        for j in range(rows):
+            for i in range(columns):
+                #if (i == 0 and j == 0):
+                    #first frame stopframe
+                location = (start[0]+size[0]*i, start[1]+size[1]*j)
+                self.animation.append(spriteSheet.subsurface(pygame.Rect(location,size)))
+                
+        
     def draw(self, delay, transColor):
         self.__setTransColor(transColor)
         
