@@ -14,9 +14,9 @@ requires it either through inheritance or through inclusion of a sprite object.
  
  - play/pause animation
  - change animation delay
- - set animation range through a start frame and end frame
- - specify a current animation frame
- - return which animation frame the animation is currently in
+ - set animation range through a start drawFrame and end drawFrame
+ - specify a current animation drawFrame
+ - return which animation drawFrame the animation is currently in
  - helper functions as needed
 Rotate sprite
 Scale sprite
@@ -43,38 +43,39 @@ screen = pygame.display.set_mode((SCREEN_WD_HT, SCREEN_WD_HT))
  
 class SpriteLoader(pygame.sprite.Sprite):
     
-    def __init__(self):
+    def __init__(self, dirName, transColor):
         """Constructor"""
         pygame.sprite.Sprite.__init__(self)
+        self.animation = []
+        self.STOP = 0
+        self.MOOING = 1
         self.width = 0
         self.height = 0
         self.resize = 1
+        self.transColor = transColor
+        
+        self.loadMultiFile(dirName)
+        self.sprite = self.stopFrame
         self.drawFrame = 0
-        self.animation = []
-        self.curFrame = 0
-    
+        self.state = self.STOP
+        
+        self.pause = 0
+        self.delay = 3
+        
     def loadMultiFile(self, dirName):
         """Load from multiple graphic files"""
-        #First frame will always be stopFrame
         self.stopFrame = pygame.image.load(dirName + "00.bmp")
         self.stopFrame = self.stopFrame.convert()
-        #Put in Draw
-        transColor = self.stopFrame.get_at((1, 1))
-        self.stopFrame.set_colorkey(transColor)
+        self.stopFrame.set_colorkey(self.transColor)
         
         dirScan = glob(dirName + "*.*")
-        
         for i in range(1,len(dirScan)):
             animFrame = dirScan[i]
             tempFrame = pygame.image.load(animFrame)
             tempFrame = tempFrame.convert()
-            #Put in Draw
-            transColor = tempFrame.get_at((1, 1))
-            tempFrame.set_colorkey(transColor)
+            tempFrame.set_colorkey(self.transColor)
             self.animation.append(tempFrame)
-            print(dirScan[i])
-        
-        
+            
     def loadSpriteSheet(self, fileName):
         """Load from sprite sheets"""
         self.fileName = fileName
@@ -88,36 +89,48 @@ class SpriteLoader(pygame.sprite.Sprite):
         self.image.set_colorkey(transColor)
         #pygame.draw
     
-    def animate(self):
-        self.drawFrame += 1
-        if self.drawFrame >= len(self.animation):
-            self.drawFrame = 0
-        self.stopFrame = self.animation[self.drawFrame]
         '''
         - play/pause animation
         - change animation delay
-        - set animation range through a start frame and end frame
-        - specify a current animation frame
-        - return which animation frame the animation is currently in
+        - set animation range through a start drawFrame and end drawFrame
+        - specify a current animation drawFrame
+        - return which animation drawFrame the animation is currently in
         - helper functions as needed
         '''
-        
     
+    def update(self):
+        if self.state == self.STOP:
+            self.sprite = self.stopFrame
+        else:
+            self.pause += 1
+            if self.pause > self.delay:
+                self.pause = 0
+                self.drawFrame += 1
+                if self.drawFrame >= len(self.animation):
+                    self.drawFrame = 0
+                    self.state = self.STOP
+                    self.sprite = self.stopFrame
+                else:
+                    self.sprite = self.animation[self.drawFrame]
+
     def rotate(self, angle):
         self.stopFrame = pygame.transform.rotate(self.stopFrame, angle)
+        for i in range(len(self.animation)):
+            self.animation[i] = pygame.transform.rotate(self.animation[i], angle)
     
-    #TODO: Make Dynamic
     def resizeSprite(self, objective):
         """Resizes Sprite"""
         if(objective == 'scale'):
-            wid = self.stopFrame.get_width()*SCALING_FACTOR
-            ht = self.stopFrame.get_width()*SCALING_FACTOR
+            wid = self.sprite.get_width()*SCALING_FACTOR
+            ht = self.sprite.get_height()*SCALING_FACTOR
         elif(objective == 'shrink'):
-            wid = self.stopFrame.get_width()/SCALING_FACTOR
-            ht = self.stopFrame.get_width()/SCALING_FACTOR
-        
+            wid = self.sprite.get_width()/SCALING_FACTOR
+            ht = self.sprite.get_height()/SCALING_FACTOR
+            
         self.stopFrame = pygame.transform.scale(self.stopFrame, (wid,ht))
-    
+        for i in range(len(self.animation)):
+            self.animation[i] = pygame.transform.scale(self.animation[i], (wid,ht))
+        
     def getWidth(self):
         return self.width*self.resize
     
@@ -126,9 +139,7 @@ class SpriteLoader(pygame.sprite.Sprite):
 
 def main():
     
-    spriteObj = SpriteLoader()
-    spriteObj.loadMultiFile('assets/cow/')
-    
+    spriteObj = SpriteLoader('assets/cow/', (111, 79, 51, 255))
     
     background = pygame.Surface(screen.get_size())
     background = background.convert()
@@ -138,7 +149,7 @@ def main():
     
     while(True):
         screen.blit(background, (0, 0))
-        #screen.fill(Color.black)
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
@@ -146,20 +157,18 @@ def main():
                 sys.exit()
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
-                    spriteObj.animate()
+                    spriteObj.state = spriteObj.MOOING
                 if event.key == pygame.K_UP:
                     spriteObj.resizeSprite('scale')
                 if event.key == pygame.K_DOWN:
                     spriteObj.resizeSprite('shrink')
                 if event.key == pygame.K_LEFT:
                     spriteObj.rotate(90)
-                    print("rotate 90deg Left")
                 if event.key == pygame.K_RIGHT:
                     spriteObj.rotate(-90)
-                    print("rotate 90deg Right")
         
-        screen.blit(spriteObj.stopFrame,(100,100))
-        #spriteObj.animate
+        screen.blit(spriteObj.sprite,(100,100))
+        spriteObj.update()
         msElapsed = clock.tick(30)
         pygame.display.update() 
     
