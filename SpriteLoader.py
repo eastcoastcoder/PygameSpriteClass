@@ -35,9 +35,6 @@ class SpriteLoader(object):
     def __init__(self, name, mode):
         """Constructor"""
         self.animation = []
-        self.STOP = 0
-        self.PLAY = 1
-        self.PAUSED = 2
                 
         if(mode == 'Dir'):
             self.loadMultiFile(name)
@@ -46,10 +43,10 @@ class SpriteLoader(object):
 
         self.curFrame = self.stopFrame
         self.drawFrame = 0
-        self.state = self.STOP
+        self.state = 'STOP'
         self.pause = 0
         
-        self.width = self.curFrame.get_width()       
+        self.width = self.curFrame.get_width()
         self.height = self.curFrame.get_height() 
                    
     def loadMultiFile(self, dirName):
@@ -81,7 +78,7 @@ class SpriteLoader(object):
     def draw(self, delay, transColor):
         self.__setTransColor(transColor)
         
-        if self.state == self.STOP:
+        if self.state == 'STOP':
             self.curFrame = self.stopFrame
         else:
             self.pause += 1
@@ -89,7 +86,7 @@ class SpriteLoader(object):
                 self.pause = 0
                 
                 #Pauses Animation
-                if(self.state == self.PAUSED):
+                if(self.state == 'PAUSED'):
                     self.drawFrame = self.drawFrame
                     
                 else:
@@ -98,7 +95,7 @@ class SpriteLoader(object):
                     #Stops Animation
                     if self.drawFrame >= len(self.animation):
                         self.drawFrame = 0
-                        self.state = self.STOP
+                        self.state = 'STOP'
                         self.curFrame = self.stopFrame
                     
                     #Plays Animation
@@ -151,7 +148,6 @@ def main():
     spriteObj = SpriteLoader('assets/cow/', 'Dir')
     #spriteSheetObj = SpriteLoader('assets/cow/', 'Sheet')
     #spriteSheetObj.loadSpriteSheet(start, size, columns, rows=1)
-    #spriteSheetObj = SpriteLoader('assets/cow/', 'Sheet')
     
     background = pygame.Surface(screen.get_size())
     background = background.convert()
@@ -169,15 +165,15 @@ def main():
                 sys.exit()
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
-                    if (spriteObj.state == spriteObj.STOP):
-                        spriteObj.state = spriteObj.PLAY
-                        print "Playing"
-                    elif (spriteObj.state == spriteObj.PLAY):    
-                        spriteObj.state = spriteObj.PAUSED
-                        print "Pausing"
-                    elif (spriteObj.state == spriteObj.PAUSED):    
-                        spriteObj.state = spriteObj.PLAY    
-                        print "Resuming"
+                    if (spriteObj.state == 'STOP'):
+                        spriteObj.state = 'PLAY'
+                        print spriteObj.state
+                    elif (spriteObj.state == 'PLAY'):    
+                        spriteObj.state = 'PAUSED'
+                        print spriteObj.state
+                    elif (spriteObj.state == 'PAUSED'):    
+                        spriteObj.state = 'PLAY'    
+                        print spriteObj.state
                         
                 if event.key == pygame.K_UP:
                     spriteObj.resizeSprite('Scale', 2)
