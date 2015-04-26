@@ -32,23 +32,13 @@ screen = pygame.display.set_mode((SCREEN_WD_HT, SCREEN_WD_HT))
  
 class SpriteLoader(object):
     
-    def __init__(self, name, mode):
+    def __init__(self):
         """Constructor"""
         self.animation = []
-                
-        if(mode == 'Dir'):
-            self.loadMultiFile(name)
-        elif(mode == 'Sheet'):
-            self.loadSpriteSheet(name)
-
-        self.curFrame = self.stopFrame
-        self.drawFrame = 0
         self.state = 'STOP'
+        self.drawFrame = 0
         self.pause = 0
         
-        self.width = self.curFrame.get_width()
-        self.height = self.curFrame.get_height() 
-                   
     def loadMultiFile(self, dirName):
         """Load from multiple graphic files"""
         self.stopFrame = pygame.image.load(dirName + "00.bmp").convert()
@@ -60,20 +50,28 @@ class SpriteLoader(object):
             tempFrame = tempFrame.convert()
             self.animation.append(tempFrame)
             
+        self.curFrame = self.stopFrame
+        
+        self.width = self.curFrame.get_width()
+        self.height = self.curFrame.get_height() 
+           
     def loadSpriteSheet(self, fileName, start, size, columns, rows=1):
         """Load from curFrame sheets"""
-        #size     ()
-        #location ()
-        
         spriteSheet = pygame.image.load(fileName).convert()
         
         for j in range(rows):
             for i in range(columns):
-                #if (i == 0 and j == 0):
-                    #first frame stopframe
                 location = (start[0]+size[0]*i, start[1]+size[1]*j)
-                self.animation.append(spriteSheet.subsurface(pygame.Rect(location,size)))
-                
+                print location
+                if (location == (0,0)):
+                    self.stopFrame = spriteSheet.subsurface(pygame.Rect(location,size))
+                else:
+                    self.animation.append(spriteSheet.subsurface(pygame.Rect(location,size)))
+        
+        self.curFrame = self.stopFrame
+        
+        self.width = self.curFrame.get_width()
+        self.height = self.curFrame.get_height()         
         
     def draw(self, delay, transColor):
         self.__setTransColor(transColor)
@@ -101,8 +99,6 @@ class SpriteLoader(object):
                     #Plays Animation
                     else:
                         self.curFrame = self.animation[self.drawFrame]
-                        
-            
         '''
         - set animation range through a start drawFrame and end drawFrame
         - specify a current animation drawFrame
@@ -145,9 +141,9 @@ class SpriteLoader(object):
         
 def main():
     
-    spriteObj = SpriteLoader('assets/cow/', 'Dir')
-    #spriteSheetObj = SpriteLoader('assets/cow/', 'Sheet')
-    #spriteSheetObj.loadSpriteSheet(start, size, columns, rows=1)
+    spriteObj = SpriteLoader()
+    spriteObj.loadMultiFile('assets/cow/')
+    #spriteObj.loadSpriteSheet("assets/COWABUNGA.bmp", [0,0], [96,96], 1, 1)
     
     background = pygame.Surface(screen.get_size())
     background = background.convert()
