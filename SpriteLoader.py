@@ -114,7 +114,10 @@ class SpriteLoader(object):
             self.animation[i] = pygame.transform.rotate(self.animation[i], angle)
     
     def resizeSprite(self, objective, factor):
-        """Resizes Sprite"""
+        """
+        Resizes Sprite
+        Caution: This is Lossy!
+        """
         if(objective == 'Scale'):
             self.width *= factor
             self.height *= factor
@@ -144,7 +147,7 @@ def main():
     #Uncomment for SpriteSheet file cow
     spriteObj.loadSpriteSheet("assets/COWABUNGA.bmp", [0,0], [96,96], 12, 1)
     
-    #Uncomment Cow TransColor
+    #Uncomment for Cow TransColor
     spriteObj.setTransColor((111, 79, 51, 255))    
     
     #Uncomment for SpriteSheet file asteroid
@@ -188,7 +191,7 @@ def main():
                     spriteObj.rotate(-90)
                     print "Rotate Right"
                     
-        spriteObj.animate(2)
+        spriteObj.animate(3)
         
         screen.blit(spriteObj.curFrame, (100,100))
         msElapsed = clock.tick(30)
