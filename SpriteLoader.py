@@ -7,8 +7,6 @@ requires it either through inheritance or through inclusion of a curFrame object
 #Basic (B level specifications):
 
 **Animation commands**
- - play/speed animation
- - change animation delay
  - set animation range through a start drawFrame and end drawFrame
  - specify a current animation drawFrame
  - return which animation drawFrame the animation is currently in
@@ -20,6 +18,7 @@ requires it either through inheritance or through inclusion of a curFrame object
  - Manipulate alpha to make curFrame partially transparent
  - Debug mode that shows borders and animation frames
 '''
+
 import pygame, sys, os
 from glob import *
  
@@ -38,6 +37,7 @@ class SpriteLoader(object):
         self.state = 'STOP'
         self.drawFrame = 0
         self.speed = 0
+        self.delay = 3
         
     def loadMultiFile(self, dirName):
         """Load from Multiple Sprite Files"""
@@ -73,15 +73,15 @@ class SpriteLoader(object):
     #Start: should be 
     #End:   should be    
     #def animate(self, delay, start, end):
-    def animate(self, delay):
-        """Animate Sprite"""
+    def animate(self):
+        """Loops Sprite Animation"""
         if self.state == 'STOP':
             self.curFrame = self.stopFrame
         else:
             self.speed += 1
             
             #Sets up Animation Speed
-            if self.speed > delay:
+            if self.speed > self.delay:
                 self.speed = 0
                 
                 #Pauses Animation
@@ -129,6 +129,23 @@ class SpriteLoader(object):
         for i in range(len(self.animation)):
             self.animation[i] = pygame.transform.scale(self.animation[i], (self.width,self.height))
     
+    #Mutators
+    def playAnimation(self):
+        """Sets State Flag to PLAY"""
+        self.state = 'PLAY'
+    
+    def pauseAnimation(self):
+        """Sets State Flag to PAUSED"""
+        self.state = 'PAUSED'    
+    
+    def setAnimationDelay(self, delay):
+        """
+        Sets Animation Delay
+        Default Delay: 3
+        """
+        self.delay = delay
+    
+    #Accessors
     def getWidth(self):
         """Returns Current Width of Sprite"""
         return self.width
@@ -136,6 +153,10 @@ class SpriteLoader(object):
     def getHeight(self):
         """Returns Current Height of Sprite"""
         return self.height
+    
+    def getState(self):
+        """Returns State Flag"""
+        return self.state
         
 def main():
     
@@ -145,14 +166,14 @@ def main():
     #spriteObj.loadMultiFile('assets/cow/')
 
     #Uncomment for SpriteSheet file cow
-    spriteObj.loadSpriteSheet("assets/COWABUNGA.bmp", [0,0], [96,96], 12, 1)
+    #spriteObj.loadSpriteSheet("assets/COWABUNGA.bmp", [0,0], [96,96], 12, 1)
     
     #Uncomment for Cow TransColor
-    spriteObj.setTransColor((111, 79, 51, 255))    
+    #spriteObj.setTransColor((111, 79, 51, 255))    
     
     #Uncomment for SpriteSheet file asteroid
-    #spriteObj.loadSpriteSheet("assets/asteroid.bmp", [0,0], [64,64], 8, 8)
-    #spriteObj.setTransColor((255, 0, 255, 255))
+    spriteObj.loadSpriteSheet("assets/asteroid.bmp", [0,0], [64,64], 8, 8)
+    spriteObj.setTransColor((255, 0, 255, 255))
     
     background = pygame.Surface(screen.get_size())
     background = background.convert()
@@ -170,13 +191,13 @@ def main():
                 sys.exit()
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
-                    if (spriteObj.state == 'STOP'):
-                        spriteObj.state = 'PLAY'
-                    elif (spriteObj.state == 'PLAY'):    
-                        spriteObj.state = 'PAUSED'
-                    elif (spriteObj.state == 'PAUSED'):    
-                        spriteObj.state = 'PLAY'    
-                    print spriteObj.state
+                    if (spriteObj.getState() == 'STOP'):
+                        spriteObj.playAnimation()
+                    elif (spriteObj.getState() == 'PLAY'):    
+                        spriteObj.pauseAnimation()
+                    elif (spriteObj.getState() == 'PAUSED'):    
+                        spriteObj.playAnimation() 
+                    print spriteObj.getState()
                         
                 if event.key == pygame.K_UP:
                     spriteObj.resizeSprite('Scale', 2)
@@ -191,7 +212,8 @@ def main():
                     spriteObj.rotate(-90)
                     print "Rotate Right"
                     
-        spriteObj.animate(3)
+        spriteObj.setAnimationDelay(3)            
+        spriteObj.animate()
         
         screen.blit(spriteObj.curFrame, (100,100))
         msElapsed = clock.tick(30)
